@@ -1,0 +1,112 @@
+{include file='pubilc/head' /}
+
+<body>
+<div class="x-nav">
+            <span class="layui-breadcrumb">
+                <a href="">后台</a>
+                <a href="">API测试管理</a>
+                <a>
+                    <cite>单条测试结果</cite>
+                </a>
+            </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       onclick="location.reload()" title="刷新">
+        <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i>
+    </a>
+</div>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <div class="layui-form demoTable">
+
+                        <div class="layui-inline layui-show-xs-block">
+                            <input type="text" name="search" placeholder="模糊搜索" autocomplete="off"
+                                   class="layui-input" id="search">
+                        </div>
+                        <div class="layui-inline layui-show-xs-block">
+                            <button class="layui-btn" data-type="reload" id="reloadserve">
+                                <i class="layui-icon">&#xe615;</i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-card-body">
+                    <table class="layui-hide" id="test" lay-filter="test"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+
+<script type="text/html" id="checkboxTpl1">
+    {{# if(d.data_status == 1){ }}
+    <span class="layui-badge layui-bg-green">成功</span>
+    {{# }else if(d.data_status == 2){ }}
+    <span class="layui-badge layui-bg-green">失败</span>
+    {{# }else if(d.data_status == 3){ }}
+    <span class="layui-badge layui-bg-green">处理中</span>
+    {{# }else{ }}
+    <span class="layui-badge layui-bg-orange">未知 </span>
+    {{# } }}
+</script>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="look">查看</a>
+
+</script>
+
+
+<script>
+    layui.use(['table', 'form', 'laydate'], function () {
+        var table = layui.table
+            , form = layui.form
+            , laydate = layui.laydate;
+
+        table.render({
+            elem: '#test'
+            , url: '/admin/Apitest/testallinfo?id={$dataid||default=\'\'}&tkid={$tkid||default=\'\'}'
+            , toolbar: '#toolbarDemo'
+            , method: 'post'
+            , cols: [[
+                {type: 'numbers', title: '序号'}
+                {$js}
+                , {field: 'data_resp', title: '返回信息'}
+                , {field: 'data_status', title: '请求状态', toolbar: '#checkboxTpl1'}
+            ]]
+            , id: 'testReload'
+            , page: true
+            , size: 'lg'
+            , limits: [10, 20, 30, 40, 50, 100, 1000]
+        });
+
+
+        //搜索
+        var $ = layui.$, active = {
+            reload: function () {
+                var search = $('#search');
+                //执行重载
+                table.reload('testReload', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    , where: {
+                        search: search.val()
+                    }
+                });
+            }
+        };
+
+        $('.demoTable .layui-btn').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+
+    });
+
+
+</script>
+

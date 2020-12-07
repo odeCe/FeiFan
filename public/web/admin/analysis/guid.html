@@ -1,0 +1,62 @@
+{include file='pubilc/head' /}
+<link rel="stylesheet" href="__STATIC__/jsonview/jquery.jsonview.css" />
+
+<body>
+<div class="x-nav">
+            <span class="layui-breadcrumb">
+                <a href="">后台</a>
+                <a href="">分析管理</a>
+                <a>
+                    <cite>GUID查询</cite>
+                </a>
+            </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       onclick="location.reload()" title="刷新">
+        <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i>
+    </a>
+</div>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <div class="layui-form demoTable">
+                        <div class="layui-inline layui-show-xs-block">
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" id="guid" placeholder="GUID查询" style="width: 300px" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="layui-inline layui-show-xs-block">
+                            <button class="layui-btn" onclick="getdata()">
+                                <i class="layui-icon">&#xe615;</i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-card-body">
+                    <div id="main" style="width: 100%">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
+    function getdata () {
+        var guid = $('#guid').val();
+        $.post('/admin/Analysis/guid', {guid},function(res){
+            if(res.code == 1){
+                var jdata = JSON.stringify(res.data, null, 4);
+                // console.log(jdata);//这是在输出框的json数据确实被格式话了
+                $("#main").html("<pre>"+jdata+"</pre>" );
+                // $("#main").JSONView(res.data, { collapsed: true, nl2br: true, recursive_collapser: true });
+            }else{
+                layer.alert(res.msg,{icon: 5})
+            }
+        })
+
+    }
+
+</script>

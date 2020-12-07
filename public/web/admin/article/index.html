@@ -1,0 +1,146 @@
+{include file='pubilc/head' /}
+
+<body>
+<div class="x-nav">
+            <span class="layui-breadcrumb">
+                <a href="">后台</a>
+                <a href="">文章管理</a>
+                <a>
+                    <cite>分类列表</cite>
+                </a>
+            </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" onclick="location.reload()" title="刷新">
+        <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i>
+    </a>
+</div>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body">
+                    <table class="layui-hide" id="test" lay-filter="test"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <button class="layui-btn" onclick="xadmin.open('添加IP','/admin/Article/add',600,400)"><i class="layui-icon"></i>添加文章</button>
+    </div>
+</script>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn  layui-btn-xs" lay-event="edit">编辑</a>
+</script>
+
+<script type="text/html" id="checkboxTpl">
+    <input type="checkbox"   value="{{d.id}}" title="是" lay-filter="lockDemo" {{ d.state == 1 ? 'checked' : '' }}>
+</script>
+
+
+<script type="text/html" id="checkboxTpl2">
+    <input type="checkbox"   value="{{d.id}}" title="是" lay-filter="lockDemo2" {{ d.push == 1 ? 'checked' : '' }}>
+</script>
+
+<script type="text/html" id="image">
+    <img src="{{d.shrinkage}}" alt="{{d.title}}" style="width: 20px">
+</script>
+
+
+<script>
+    layui.use(['table','form','laydate'], function(){
+        var table = layui.table
+            ,form = layui.form
+            ,laydate = layui.laydate;
+
+        table.render({
+            elem: '#test'
+            ,url:'/admin/Article/index'
+            ,toolbar: '#toolbarDemo'
+            ,method:'post'
+            ,cols: [[
+                {type:'numbers', title: '序号'}
+                ,{field:'shrinkage',  title: '缩略图',toolbar: '#image'}
+                ,{field:'title',  title: '文章标题'}
+                ,{field:'kind',  title: '文章分类'}
+                ,{field:'click',  title: '点击量'}
+                ,{field:'state',  title: '是否发布',toolbar: '#checkboxTpl'}
+                ,{field:'push',  title: '是否推荐',toolbar: '#checkboxTpl2'}
+                ,{field:'abstract',  title: '简介说明'}
+                ,{field:'addtime', title: '添加时间'}
+                ,{fixed: '', title: '操作',  toolbar: '#barDemo'}
+            ]]
+            ,id: 'testReload'
+            ,page: true
+            ,size:'lg'
+            ,limits:[10,20,30,40,50,100]
+        });
+
+
+
+        //监听工具条
+        table.on('tool(test)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'edit'){
+                xadmin.open('查看编辑','/admin/Article/edit?id='+data.id,800,600)
+            }
+        });
+
+        //监听锁定操作
+        form.on('checkbox(lockDemo)', function(obj){
+            $.post('/admin/Article/state', {'id':this.value,'state':obj.elem.checked?1:-1},function(res){
+                if(res.code == 1){
+                    layer.msg(res.msg,{icon: 1})
+                }else{
+                    layer.alert(res.msg,{icon: 5})
+                }
+            },'json');
+        });
+
+        //监听锁定操作
+        form.on('checkbox(lockDemo2)', function(obj){
+            $.post('/admin/Article/push', {'id':this.value,'push':obj.elem.checked?1:-1},function(res){
+                if(res.code == 1){
+                    layer.msg(res.msg,{icon: 1})
+                }else{
+                    layer.alert(res.msg,{icon: 5})
+                }
+            },'json');
+        });
+
+
+        //监听排序事件
+        table.on('sort(test)', function(obj){ //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+            console.log(obj.field); //当前排序的字段名
+            console.log(obj.type); //当前排序类型：desc（降序）、asc（升序）、null（空对象，默认排序）
+            console.log(this); //当前排序的 th 对象
+
+            var start = $('#start');
+            var end = $('#end');
+            var username = $('#username');
+
+            //尽管我们的 table 自带排序功能，但并没有请求服务端。
+            //有些时候，你可能需要根据当前排序的字段，重新向服务端发送请求，从而实现服务端排序，如：
+            table.reload('testReload', {
+                initSort: obj //记录初始排序，如果不设的话，将无法标记表头的排序状态。
+                ,where: { //请求参数（注意：这里面的参数可任意定义，并非下面固定的格式）
+                    field: obj.field //排序字段
+                    ,order: obj.type, //排序方式
+                    start:start.val(),
+                    end:end.val(),
+                    username:username.val()
+                }
+            });
+
+            // layer.msg('服务端排序。order by '+ obj.field + ' ' + obj.type);
+        });
+
+    });
+
+
+
+
+</script>

@@ -1,0 +1,163 @@
+{include file='pubilc/head' /}
+<body>
+<div class="x-nav">
+            <span class="layui-breadcrumb">
+                <a href="">后台</a>
+                <a href="">统计管理</a>
+                <a>
+                    <cite>客户统计</cite>
+                </a>
+            </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       onclick="location.reload()" title="刷新">
+        <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i>
+    </a>
+</div>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <div class="layui-form demoTable">
+                        <div class="layui-inline layui-show-xs-block">
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" id="dateTime" placeholder="日期范围" autocomplete="off">
+                            </div>
+                        </div>
+
+                        {eq name="$userinfo['super']" value="1"}
+
+                        <div class="layui-inline layui-show-xs-block" style="width: 200px;">
+                            <select name="user_id" id="user_id" lay-verify="required" lay-search="" class="layui-input"
+                                    autocomplete="off" lay-filter="serve">
+                                <option value="">客户选择</option>
+                                {volist name="admin" id="vo"}
+                                <option value="{$vo.id}">{$vo.username}</option>
+                                {/volist}
+                            </select>
+                        </div>
+
+                        {/eq}
+                        <div class="layui-inline layui-show-xs-block">
+                            <button class="layui-btn" data-type="reload">
+                                <i class="layui-icon">&#xe615;</i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-card-body">
+                    <div id="main" style="width: 100%;height:400px;"></div>
+                    <hr>
+                    <div id="main2" style="width: 100%;height:400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script src="https://cdn.bootcss.com/echarts/4.2.1-rc1/echarts.min.js"></script>
+<script type="text/javascript">
+    var myChart = echarts.init(document.getElementById('main'));
+    var myChart2 = echarts.init(document.getElementById('main2'));
+    // 显示标题，图例和空的坐标轴
+    myChart.setOption({
+        title: {
+            text: '服务计费调用数量占比'
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: '{b} : {c} ({d}%)'
+        },
+        series: []
+    });
+    myChart2.setOption({
+        title: {
+            text: '服务调用金额占比'
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: '{b} : {c} ({d}%)'
+        },
+        series: []
+    });
+
+
+
+    layui.use(['form', 'laydate','layer'], function () {
+        var layer = layui.layer
+            , form = layui.form
+            , laydate = layui.laydate;
+
+        var day3 = new Date();
+        day3.setTime(day3.getTime()); //+24*60*60*1000
+        var s3 = day3.getFullYear()+"-" + (day3.getMonth()+1) + "-" + day3.getDate();
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#dateTime' //指定元素
+            ,max:s3
+            , range: "至"
+
+        });
+
+        var $ = layui.$, active = {
+            reload: function () {
+                var dateTime = $('#dateTime').val();
+                var user_id = $('#user_id').val();
+                myChart.showLoading();
+                $.post('/admin/Statistics/client', {dateTime,user_id},function(res){
+                    myChart.hideLoading();
+                    if(res.code == 1){
+                        myChart.setOption(
+                            {
+                                legend: {
+                                    orient: 'vertical',
+                                    right: 10,
+                                    top: 20,
+                                    bottom: 20,
+                                    data: res.data.legendData
+                                },
+                                series: {
+                                    type: 'pie',
+                                    data:res.data.dataArr
+                                }
+                            }
+                        );
+                    }else{
+                        layer.alert(res.msg,{icon: 5})
+                    }
+                })
+                myChart2.showLoading();
+                $.post('/admin/Statistics/client2', {dateTime,user_id},function(res2){
+                    myChart2.hideLoading();
+                    if(res2.code == 1){
+                        myChart2.setOption(
+                            {
+                                legend: {
+                                    orient: 'vertical',
+                                    right: 10,
+                                    top: 20,
+                                    bottom: 20,
+                                    data: res2.data.legendData
+                                },
+                                series: {
+                                    type: 'pie',
+                                    data:res2.data.dataArr
+                                }
+                            }
+                        );
+                    }else{
+                        layer.alert(res.msg,{icon: 5})
+                    }
+                })
+
+            }
+        };
+
+        $('.demoTable .layui-btn').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+
+</script>

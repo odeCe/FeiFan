@@ -1,0 +1,98 @@
+{include file='pubilc/head' /}
+
+<body>
+<div class="layui-fluid">
+    <div class="layui-row">
+        <form class="layui-form">
+
+
+            <div class="layui-form-item">
+                <label for="name" class="layui-form-label">
+                    <span class="x-red">*</span>角色名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="name" name="name" required="" lay-verify="name" autocomplete="off" class="layui-input" value="{$data.name}">
+                    <input type="hidden" id="id" name="id" required=""  value="{$data.id}">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="module" class="layui-form-label">
+                    <span class="x-red">*</span>状态</label>
+                <div class="layui-input-inline">
+                    <input type="radio" name="state" value="1" title="启用" class="layui-input" {$data.state==1?'checked':''}>
+                    <input type="radio" name="state" value="2" title="关闭" class="layui-input"{$data.state==2?'checked':''}>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="list" class="layui-form-label">
+                    <span class="x-red">*</span>权限</label>
+                <div class="layui-input-block" id="list">
+                    <!--                    <input type="checkbox" name="like1[write]" lay-skin="primary" title="写作">-->
+
+                    <br>
+                    {volist name="list" id="vo"}
+                    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+                        <legend style="font-size: 14px">{$vo.name}</legend>
+                        {volist name="vo.list" id="vi"}
+                        <input type="checkbox" name="role[{$vi.id}]" lay-skin="primary" title="{$vi.name}" value="{$vi.id}" {:inArray($data['role'],$vi['id'])?'checked':''}>
+                        {/volist}
+                    </fieldset>
+
+                    {/volist}
+
+
+
+
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+
+
+            <div class="layui-form-item">
+                <label for="way" class="layui-form-label">
+                </label>
+                <button class="layui-btn" lay-filter="append" lay-submit="">更新</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>layui.use(['form', 'layer','jquery'],
+    function() {
+        $ = layui.jquery;
+        var form = layui.form,
+            layer = layui.layer;
+
+        //监听提交
+        form.on('submit(append)',
+            function(data) {
+                console.log(data);
+                //发异步，把数据提交给php
+                $.post('/admin/role/edit', data.field,function(res){
+                    if(res.code == 1){
+                        layer.alert("更新成功", {
+                                icon: 6
+                            },
+                            function() {
+                                //关闭当前frame
+                                xadmin.close();
+
+                                // 可以对父窗口进行刷新
+                                xadmin.father_reload();
+                            });
+                    }else{
+                        layer.alert(res.msg,{icon: 5})
+                    }
+                })
+
+                return false;
+            });
+
+    });</script>
+</body>
+
+</html>

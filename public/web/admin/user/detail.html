@@ -1,0 +1,160 @@
+{include file='pubilc/head' /}
+
+<body>
+<div class="layui-fluid">
+    <div class="layui-row">
+        <form class="layui-form" lay-filter="formTest">
+                    <div class="layui-form-item">
+                        <label for="username" class="layui-form-label">
+                            <span class="x-red">*</span>用户名</label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="username" name="username" required=""  autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+
+
+                    <div class="layui-form-item">
+                        <label for="account" class="layui-form-label">
+                            <span class="x-red">*</span>账号</label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="account" name="account" required="" lay-verify="account" autocomplete="off" class="layui-input"></div>
+                        <div class="layui-form-mid layui-word-aux">
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label for="email" class="layui-form-label">
+                            <span class="x-red">*</span>邮箱</label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="email" name="email" required=""  autocomplete="off" class="layui-input">
+                        </div>
+                        <div class="layui-form-mid layui-word-aux">
+                        </div>
+                    </div>
+
+
+                    <div class="layui-form-item">
+                        <label for="mobile" class="layui-form-label">
+                            <span class="x-red">*</span>手机号</label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="mobile" name="mobile" required=""  autocomplete="off" class="layui-input">
+                        </div>
+                        <div class="layui-form-mid layui-word-aux">
+                        </div>
+                    </div>
+
+
+                    <div class="layui-form-item">
+                        <label for="qq" class="layui-form-label">
+                            <span class="x-red">*</span>qq
+                        </label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="qq" name="qq" required=""  autocomplete="off" class="layui-input">
+                        </div>
+                        <div class="layui-form-mid layui-word-aux">
+                        </div>
+                    </div>
+
+
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">状态</label>
+                        <div class="layui-input-block">
+                            <input type="checkbox" name="is_del" title="正常">
+                        </div>
+                    </div>
+
+
+            <div class="layui-form-item">
+                <label for="addtime" class="layui-form-label">
+                    <span class="x-red">*</span>注册时间
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="addtime" name="addtime" required=""  autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label for="first_ip" class="layui-form-label">
+                    <span class="x-red">*</span>注册IP
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="first_ip" name="first_ip" required=""  autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+<script>layui.use(['form', 'layer','jquery'],
+    function() {
+        $ = layui.jquery;
+        var form = layui.form,
+            layer = layui.layer;
+
+        var id = getQueryString('id');
+
+
+
+        $.post('/admin/user/detail', {'id':id},function(res){
+            console.log(res)
+            if(res.code == 1){
+                // $('#account').val(res.data.account)
+                // $('#username').val(res.data.username)
+                // $('#qq').val(res.data.qq)
+                // $('#email').val(res.data.email)
+                // $('#mobile').val(res.data.mobile)
+                //
+                // $('#is_del').val(res.data.is_del)
+                //
+                // $('#account').val(res.data.account)
+                // $('#account').val(res.data.account)
+                // $('#account').val(res.data.account)
+
+                form.val("formTest", {
+                    "account":res.data.account
+                    ,"username":res.data.username
+                    ,"qq":res.data.qq
+                    ,"email":res.data.email
+                    ,"mobile":res.data.mobile
+                    ,"is_del":res.data.is_del==1?true:false
+
+
+                    ,"addtime": timestampToTime(res.data.addtime)
+                    ,"first_ip":res.data.first_ip
+
+                })
+            }
+
+        },'json');
+
+
+        });
+
+
+// 获取GIT参数
+function getQueryString(name) {
+    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+    var r = window.location.search.substr(1).match(reg);
+    if (r != null) return unescape(r[2]); return null;
+}
+
+function timestampToTime(timestamp) {
+    var date = new Date(timestamp * 1000);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+    var Y = date.getFullYear() + '-';
+    var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+    var D = date.getDate() + ' ';
+    var h = date.getHours() + ':';
+    var m = date.getMinutes() + ':';
+    var s = date.getSeconds();
+    return Y + M + D + h + m + s;
+}
+</script>
+</body>
+
+</html>

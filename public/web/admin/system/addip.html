@@ -1,0 +1,74 @@
+{include file='pubilc/head' /}
+
+<body>
+<div class="layui-fluid">
+    <div class="layui-row">
+        <form class="layui-form" lay-filter="formTest">
+
+            <div class="layui-form-item">
+                <label for="ip" class="layui-form-label">
+                    <span class="x-red">*</span>IP</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="ip" name="ip" required="" autocomplete="off" class="layui-input" >
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="info" class="layui-form-label">
+                    <span class="x-red">*</span>说明</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="info" name="info" required="" autocomplete="off" class="layui-input" >
+                </div>
+            </div>
+
+
+
+            <div class="layui-form-item">
+                <label for="L_repass" class="layui-form-label"></label>
+                <button class="layui-btn" lay-filter="edit" lay-submit="">添加</button>
+            </div>
+
+
+        </form>
+    </div>
+</div>
+<script>
+    layui.use(['form', 'layer','jquery'],
+        function() {
+            $ = layui.jquery;
+            var form = layui.form,
+                layer = layui.layer;
+            //表单提交
+            form.on('submit(edit)', function(data){
+                $.post('/admin/System/addip', data.field,function(res){
+                    if(res.code == 1){
+                        layer.msg(res.msg,{icon: 1},function() {
+                            //关闭当前frame
+                            xadmin.close();
+
+                            // 可以对父窗口进行刷新
+                            xadmin.father_reload();
+                        })
+                    }else{
+                        layer.alert(res.msg,{icon: 5})
+                    }
+
+                },'json');
+
+
+                return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+            });
+
+        });
+
+
+    // 获取GIT参数
+    function getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]); return null;
+    }
+</script>
+</body>
+
+</html>

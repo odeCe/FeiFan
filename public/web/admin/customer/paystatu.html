@@ -1,0 +1,115 @@
+{include file='pubilc/head' /}
+
+<body>
+<div class="x-nav">
+            <span class="layui-breadcrumb">
+                <a href="">后台</a>
+                <a href="">客户管理</a>
+                <a>
+                    <cite>充值操作</cite>
+                </a>
+            </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       onclick="location.reload()" title="刷新">
+        <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i>
+    </a>
+</div>
+<div class="layui-fluid">
+    <div class="layui-row">
+        <form class="layui-form">
+
+
+            <div class="layui-form-item">
+                <label for="L_account" class="layui-form-label">
+                    <span class="x-red">*</span>单号</label>
+                <div class="layui-input-inline">
+                    <input value="{$orderid.pay_orderid|default=''}" type="text"   required="" disabled autocomplete="off" class="layui-input"></div>
+                <div class="layui-form-mid layui-word-aux">
+                    <span class="x-red">*</span>请核对
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="L_username" class="layui-form-label">
+                    <span class="x-red">*</span>充值金额</label>
+                <div class="layui-input-inline">
+                    <input value="{$orderid.pay_money|default=''}" type="text"   required="" disabled autocomplete="off" class="layui-input"></div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="L_username" class="layui-form-label">
+                    <span class="x-red">*</span>用户附言</label>
+                <div class="layui-input-inline">
+                    <input value="{$orderid.pay_msg|default=''}" type="text"   required="" disabled autocomplete="off" class="layui-input"></div>
+            </div>
+
+            <div class="layui-form-item">
+                <label  class="layui-form-label">
+                    <span class="x-red">*</span>收款状态</label>
+                <div class="layui-input-inline">
+                    <select name="pay_statu" lay-verify="required" lay-search="">
+                        <option value="1">已收到</option>
+                        <option value="2" selected>未收到</option>
+                    </select>
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    <span class="x-red">*</span>请收到款之后在确认收到款
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="L_money" class="layui-form-label">
+                    <span class="x-red">*</span>操作说明</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="L_money" name="pay_msg" required="" lay-verify="username" autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    <span class="x-red">*</span>操作说明会覆盖用户附言
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label for="" class="layui-form-label"></label>
+                <input type="hidden" name="id" value="{$orderid.id|default=''}">
+                <button class="layui-btn" lay-filter="add" lay-submit="">确认</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>layui.use(['form', 'layer','jquery'],
+    function() {
+        $ = layui.jquery;
+        var form = layui.form,
+            layer = layui.layer;
+
+
+        //监听提交
+        form.on('submit(add)',
+            function(data) {
+                console.log(data);
+                //发异步，把数据提交给php
+                $.post('/admin/Customer/paystatu', data.field,function(res){
+                    if(res.code == 1){
+                        layer.alert("成功", {
+                                icon: 6
+                            },
+                            function() {
+                                //关闭当前frame
+                                xadmin.close();
+
+                                // 可以对父窗口进行刷新
+                                xadmin.father_reload();
+                            });
+                    }else{
+                        layer.alert(res.msg,{icon: 5})
+                    }
+                })
+
+                return false;
+            });
+
+    });</script>
+</body>
+
+</html>

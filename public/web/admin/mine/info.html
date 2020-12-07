@@ -1,0 +1,87 @@
+{include file='pubilc/head' /}
+
+<body>
+<div class="x-nav">
+            <span class="layui-breadcrumb">
+                <a href="">后台</a>
+                <a href="">信息管理</a>
+                <a>
+                    <cite>我的信息</cite>
+                </a>
+            </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       onclick="location.reload()" title="刷新">
+        <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i>
+    </a>
+</div>
+<div class="layui-fluid">
+    <div class="layui-row">
+        <form class="layui-form">
+
+
+            <div class="layui-form-item">
+                <label for="L_username" class="layui-form-label">
+                    <span class="x-red">*</span>客户名</label>
+                <div class="layui-input-inline">
+                    <input value="{$user.username|default=''}" type="text"  required="" lay-verify="username" autocomplete="off" class="layui-input" disabled>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label  class="layui-form-label">
+                    <span class="x-red">*</span>组织信息</label>
+                <div class="layui-input-inline">
+                    <input value="{$user.tissue|default=''}" type="text" required="" lay-verify="username" autocomplete="off" class="layui-input" disabled>
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label  class="layui-form-label">
+                    <span class="x-red">*</span>客户类型</label>
+                <div class="layui-input-inline">
+                    <span class="layui-input" style="line-height: 30px;">
+                    {switch $user.guest_type}
+                    {case 1}普通{/case}
+                    {case 2}VIP{/case}
+                    {default /}未知
+                    {/switch}
+                        </span>
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label  class="layui-form-label">
+                    <span class="x-red">*</span>付费类型</label>
+                <div class="layui-input-inline">
+                    <span class="layui-input" style="line-height: 30px;" >
+                    {switch $user.pay_type}
+                    {case 1}已付款{/case}
+                    {case 2}预付款{/case}
+                    {default /}未知
+                    {/switch}
+                         </span>
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="L_pass" class="layui-form-label">
+                    <span class="x-red"></span>新密码</label>
+                <div class="layui-input-inline">
+                    <input type="password" id="L_pass" name="pass" required="" lay-verify="pass" autocomplete="off" class="layui-input"></div>
+                <div class="layui-form-mid layui-word-aux">
+                    <span class="x-red">*</span>不修改,请留空
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label for class="layui-form-label"></label>
+                <input type="hidden" name="id" value="{$user.id|default=''}">
+                <button class="layui-btn" lay-filter="add" lay-submit="">更新</button>
+            </div>
+        </form>
+    </div>
+</div>
+

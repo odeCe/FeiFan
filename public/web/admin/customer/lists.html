@@ -1,0 +1,208 @@
+{include file='pubilc/head' /}
+
+<body>
+<div class="x-nav">
+            <span class="layui-breadcrumb">
+                <a href="">后台</a>
+                <a href="">客户管理</a>
+                <a>
+                    <cite>客户列表</cite>
+                </a>
+            </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       onclick="location.reload()" title="刷新">
+        <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i>
+    </a>
+</div>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body demoTable">
+                    <div class="layui-inline layui-show-xs-block">
+                        <input type="text" name="username" placeholder="组织|账号|客户名" autocomplete="off"
+                               class="layui-input" id="username">
+                    </div>
+                    <div class="layui-inline layui-show-xs-block">
+                        <button class="layui-btn" data-type="reload">
+                            <i class="layui-icon">&#xe615;</i></button>
+                    </div>
+                </div>
+                <div class="layui-card-body">
+                    <table class="layui-hide" id="test" lay-filter="test"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <button class="layui-btn" onclick="xadmin.open('添加客户','/admin/Customer/custadd',800,600)"><i class="layui-icon"></i>添加客户
+        </button>
+    </div>
+</script>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-xs" lay-event="del">删除</a>
+    <a class="layui-btn layui-btn-xs" lay-event="serve">服务管理</a>
+    <a class="layui-btn layui-btn-xs" lay-event="pay">充值</a>
+</script>
+
+<script type="text/html" id="checkboxTpl1">
+    <input type="checkbox" name="is_del"  value="{{d.id}}" title="启用" lay-filter="lockDemo" {{ d.is_del == 1 ? 'checked' : '' }}>
+</script>
+
+<script type="text/html" id="checkboxTpl2">
+    {{# if(d.pay_type == 1){ }}
+    <span class="layui-badge layui-bg-green">已付款</span>
+    {{# }else if(d.pay_type == 2){ }}
+    <span class="layui-badge layui-bg-green">预付款</span>
+    {{# }else{ }}
+    <span class="layui-badge layui-bg-orange">未知 </span>
+    {{# } }}
+</script>
+
+<script type="text/html" id="checkboxTpl3">
+    {{# if(d.pay_type == 1){ }}
+    <span class="layui-badge layui-bg-green">普通</span>
+    {{# }else if(d.pay_type == 2){ }}
+    <span class="layui-badge layui-bg-green">vip</span>
+    {{# }else{ }}
+    <span class="layui-badge layui-bg-orange">未知 </span>
+    {{# } }}
+</script>
+
+
+<script>
+    layui.use(['table', 'form', 'laydate'], function () {
+        var table = layui.table
+            , form = layui.form
+            , laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#start' //指定元素
+        });
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#end' //指定元素
+        });
+
+        table.render({
+            elem: '#test'
+            , url: '/admin/Customer/lists'
+            , toolbar: '#toolbarDemo'
+            , method: 'post'
+            , cols: [[
+                {type: 'numbers', title: '序号'}
+                , {field: 'username', width: 100, title: '客户名'}
+                , {field: 'account', width: 100, title: '账号'}
+                , {field: 'tissue', width: 200, title: '组织'}
+                , {field: 'pay_type', width: 130, title: '付费类型', toolbar: '#checkboxTpl2'}
+                , {field: 'balance', width: 130, title: '余额'}
+                , {field: 'addtime', width: 150, title: '创建时间',templet:function (b) {
+                        return timestampToTime(b.lasttime);
+                    }}
+                , {field: 'guest_type', width: 150, title: '用户类型', toolbar: '#checkboxTpl3'}
+                , {field: 'is_del', width: 150, title: '状态', toolbar: '#checkboxTpl1'}
+                , {fixed: '',width: 400, title: '操作',  toolbar: '#barDemo'}
+            ]]
+            , id: 'testReload'
+            , page: true
+            , size: 'lg'
+            , limits: [10, 20, 30, 40, 50, 100, 1000]
+        });
+
+
+        //搜索
+        var $ = layui.$, active = {
+            reload: function(){
+                var start = $('#start');
+                var end = $('#end');
+                var username = $('#username');
+                //执行重载
+                table.reload('testReload', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        start:start.val(),
+                        end:end.val(),
+                        username:username.val()
+                    }
+                });
+            }
+        };
+
+        $('.demoTable .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+        //监听工具条
+        table.on('tool(test)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'edit') {
+                xadmin.open('编辑用户', '/admin/Customer/custedit?id=' + data.id, 800, 600)
+            }
+            if (obj.event === 'pay') {
+                xadmin.open('充值', '/admin/Customer/directpay?id=' + data.id, 800, 600)
+            }
+            if (obj.event === 'serve') {
+                xadmin.open('服务管理', '/admin/Customer/serve?id=' + data.id, 800, 600)
+            }
+            if (obj.event === 'del') {
+
+                layer.confirm('真的删除行么', function(index){
+                    $.post('/admin/Customer/custdel', {'id':data.id},function(res){
+                        console.log(res)
+                        if(res.code == 1){
+                            layer.msg(res.msg,{icon: 1})
+                        }else{
+                            layer.alert(res.msg,{icon: 5})
+                        }
+                    },'json');
+                    obj.del();
+                    layer.close(index);
+                })
+
+            }
+        });
+
+        //监听锁定操作
+        form.on('checkbox(lockDemo)', function(obj){
+
+            console.log(obj)
+
+            $.post('/admin/Customer/custstatu', {'id':this.value,'del':obj.elem.checked?1:2},function(res){
+                console.log(res)
+                if(res.code == 1){
+                    layer.msg(res.msg,{icon: 1})
+                }else{
+                    layer.alert(res.msg,{icon: 5})
+                }
+
+            },'json');
+
+            // layer.tips(this.value + ' ' + this.name + '：'+ obj.elem.checked, obj.othis);
+        });
+
+
+    });
+    // 时间戳转换
+    function timestampToTime(timestamp) {
+        var date = new Date(timestamp * 1000);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+        var Y = date.getFullYear() + '-';
+        var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+        var D = date.getDate() + ' ';
+        var h = date.getHours() + ':';
+        var m = date.getMinutes() + ':';
+        var s = date.getSeconds();
+        return Y + M + D + h + m + s;
+    }
+
+</script>

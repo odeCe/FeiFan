@@ -1,0 +1,95 @@
+{include file='pubilc/head' /}
+
+<body>
+<div class="layui-fluid">
+    <div class="layui-row">
+        <form class="layui-form">
+
+
+            <div class="layui-form-item">
+                <label for="name" class="layui-form-label">
+                    <span class="x-red">*</span>分类名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="name" name="name" required=""  autocomplete="off" class="layui-input" value="{$name}">
+                    <input type="hidden" id="id" name="id" value="{$id}">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="module" class="layui-form-label">
+                    <span class="x-red">*</span>是否显示</label>
+                <div class="layui-input-inline">
+                    <input type="radio" name="display" value="1" title="显示" class="layui-input" {$display==1?'checked':''}>
+                    <input type="radio" name="display" value="2" title="隐藏" class="layui-input" {$display==2?'checked':''}>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="icon" class="layui-form-label">
+                    <span class="x-red">*</span>图标</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="icon" name="icon" required="true"  autocomplete="off" class="layui-input" value="{$icon}">
+                </div>
+
+                <div class="layui-form-mid layui-word-aux">
+                    <p onclick="xadmin.open('图标列表','/admin/role/icon')">图标列表</p>
+
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="sort" class="layui-form-label">
+                    <span class="x-red">*</span>排序</label>
+                <div class="layui-input-inline">
+                    <input type="number" id="sort" name="sort" required=""  autocomplete="off" class="layui-input" value="{$sort}"></div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+
+
+            <div class="layui-form-item">
+                <label for="" class="layui-form-label">
+                </label>
+                <button class="layui-btn" lay-filter="append" lay-submit="">修改</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>layui.use(['form', 'layer','jquery'],
+    function() {
+        $ = layui.jquery;
+        var form = layui.form,
+            layer = layui.layer;
+
+        //监听提交
+        form.on('submit(append)',
+            function(data) {
+                console.log(data);
+                //发异步，把数据提交给php
+                $.post('/admin/role/editkind', data.field,function(res){
+                    if(res.code == 1){
+                        layer.alert("修改成功", {
+                                icon: 6
+                            },
+                            function() {
+                                //关闭当前frame
+                                xadmin.close();
+
+                                // 可以对父窗口进行刷新
+                                xadmin.father_reload();
+                            });
+                    }else{
+                        layer.alert(res.msg,{icon: 5})
+                    }
+                })
+
+                return false;
+            });
+
+    });</script>
+</body>
+
+</html>

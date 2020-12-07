@@ -1,0 +1,137 @@
+{include file='pubilc/head' /}
+
+<body>
+<div class="x-nav">
+            <span class="layui-breadcrumb">
+                <a href="">后台</a>
+                <a href="">服务管理</a>
+                <a>
+                    <cite>修改服务</cite>
+                </a>
+            </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       onclick="location.reload()" title="刷新">
+        <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i>
+    </a>
+</div>
+<div class="layui-fluid">
+    <div class="layui-row">
+        <form class="layui-form">
+
+
+            <div class="layui-form-item">
+                <label for="serve_name" class="layui-form-label">
+                    <span class="x-red">*</span>服务名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="serve_name" name="serve_name" lay-verify="required"autocomplete="off"
+                           class="layui-input" value="{$serve_name|default=''}">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="serve_code" class="layui-form-label">
+                    <span class="x-red">*</span>服务代号</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="serve_code" name="serve_code" lay-verify="required"autocomplete="off"
+                           class="layui-input"  value="{$serve_code|default=''}">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="serve_site" class="layui-form-label">
+                    <span class="x-red">*</span>服务地址</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="serve_site" name="serve_site" lay-verify="required"autocomplete="off"
+                           class="layui-input" value="{$serve_site|default=''}">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="serve_mark" class="layui-form-label">
+                    <span class="x-red">*</span>服务标示</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="serve_mark" name="serve_mark" lay-verify="required"autocomplete="off"
+                           class="layui-input"  value="{$serve_mark|default=''}">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="serve_name" class="layui-form-label">
+                    <span class="x-red">*</span>服务状态</label>
+                <div class="layui-input-inline">
+                    <input type="radio" name="serve_statu" value="1" title="启用" class="layui-input" {$serve_statu==1?'checked':''}>
+                    <input type="radio" name="serve_statu" value="2" title="禁用" class="layui-input" {$serve_statu==2?'checked':''}>
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="serve_name" class="layui-form-label">
+                    <span class="x-red">*</span>服务类型</label>
+                <div class="layui-input-inline">
+                    <select name="serve_type" lay-verify="required" lay-search="">
+                        <option value="">直接选择或搜索选择 {$serve_type}</option>
+                        <option value="1"  <?php echo  $serve_type == 1 ? 'selected' : ''; ?> >个人基本信息</option>
+                        <option value="2"  <?php echo  $serve_type == 2 ? 'selected' : ''; ?> >信用历史</option>
+                        <option value="3"  <?php echo  $serve_type == 3 ? 'selected' : ''; ?> >运营商</option>
+                        <option value="4"  <?php echo  $serve_type == 4 ? 'selected' : ''; ?>>银行卡</option>
+                        <option value="5"  <?php echo  $serve_type == 5 ? 'selected' : ''; ?>>车辆</option>
+                        <option value="6"  <?php echo  $serve_type == 6 ? 'selected' : ''; ?>>人脸服务</option>
+                        <option value="7"  <?php echo  $serve_type == 7 ? 'selected' : ''; ?>>其他</option>
+                    </select>
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label  class="layui-form-label"></label>
+                <input type="hidden" name="id" value="{$id|default='0'}">
+                <button class="layui-btn" lay-filter="add" lay-submit="">更新</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    layui.use(['form', 'layer', 'jquery'],
+        function () {
+            $ = layui.jquery;
+            var form = layui.form,
+                layer = layui.layer;
+
+
+            //监听提交
+            form.on('submit(add)',
+                function (data) {
+                    console.log(data);
+                    //发异步，把数据提交给php
+                    $.post('/admin/Serve/infosedit', data.field, function (res) {
+                        if (res.code == 1) {
+                            layer.alert("成功", {
+                                    icon: 6
+                                },
+                                function () {
+                                    //关闭当前frame
+                                    xadmin.close();
+
+                                    // 可以对父窗口进行刷新
+                                    xadmin.father_reload();
+                                });
+                        } else {
+                            layer.alert(res.msg, {icon: 5})
+                        }
+                    })
+
+                    return false;
+                });
+
+        });
+</script>

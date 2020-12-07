@@ -1,0 +1,234 @@
+{include file='pubilc/head' /}
+
+<body>
+<div class="x-nav">
+            <span class="layui-breadcrumb">
+                <a href="">后台</a>
+                <a href="">会员管理</a>
+                <a>
+                    <cite>会员列表</cite>
+                </a>
+            </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" onclick="location.reload()" title="刷新">
+        <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i>
+    </a>
+</div>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body demoTable">
+<!--                        <div class="layui-inline layui-show-xs-block">-->
+<!--                            <input class="layui-input" autocomplete="off" placeholder="开始日" name="start" id="start">-->
+<!--                        </div>-->
+<!--                        <div class="layui-inline layui-show-xs-block">-->
+<!--                            <input class="layui-input" autocomplete="off" placeholder="截止日" name="end" id="end">-->
+<!--                        </div>-->
+                        <div class="layui-inline layui-show-xs-block">
+                            <input type="text" name="username" placeholder="账号|用户名|邮箱|手机号" autocomplete="off" class="layui-input" id="username">
+                        </div>
+                        <div class="layui-inline layui-show-xs-block">
+                            <button class="layui-btn"  data-type="reload">
+                                <i class="layui-icon">&#xe615;</i></button>
+                        </div>
+                </div>
+                <div class="layui-card-body">
+                    <table class="layui-hide" id="test" lay-filter="test"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+<!--        <button class="layui-btn layui-btn-sm" lay-event="getCheckData">获取选中行数据</button>-->
+        <button class="layui-btn" onclick="xadmin.open('添加用户','/admin/user/add',800,600)"><i class="layui-icon"></i>添加会员</button>
+    </div>
+</script>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看</a>
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script type="text/html" id="checkboxTpl">
+    <input type="checkbox" name="is_del"  value="{{d.id}}" title="拉黑" lay-filter="lockDemo" {{ d.is_del == 2 ? 'checked' : '' }}>
+</script>
+
+
+
+<script>
+    layui.use(['table','form','laydate'], function(){
+        var table = layui.table
+            ,form = layui.form
+            ,laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#start' //指定元素
+        });
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#end' //指定元素
+        });
+
+        table.render({
+            elem: '#test'
+            ,url:'/admin/user/userList'
+            ,toolbar: '#toolbarDemo'
+            ,method:'post'
+            ,cols: [[
+                {type:'numbers', title: '序号'}
+                // ,{type:'checkbox'}
+                ,{field:'id', width:80, title: 'ID', sort: true}
+                ,{field:'username', width:120, title: '用户名'}
+                ,{field:'account', width:120, title: '账号'}
+                ,{field:'qq', width:80, title: 'qq'}
+                ,{field:'email',width:120, title: '邮箱'}
+                ,{field:'mobile', width:120, title: '手机号'}
+                ,{field:'mark', width:80, title: '评分', sort: true}
+                ,{field:'gold', width:80, title: '金币', sort: true}
+                ,{field:'lasttime', width:120, title: '上次登录', sort: true ,templet:function (b) {
+                        return timestampToTime(b.lasttime);
+                    }}
+                ,{field:'last_ip', width:120, title: '上次IP'}
+                ,{field:'is_del', width:120, title: '是否拉黑', align:'center', toolbar: '#checkboxTpl'}
+                ,{fixed: '', title: '操作', width:300, toolbar: '#barDemo'}
+            ]]
+            ,id: 'testReload'
+            ,page: true
+            ,size:'lg'
+            ,limits:[10,20,30,40,50,100,1000]
+        });
+
+        //头工具栏事件
+        table.on('toolbar(test)', function(obj){
+            var checkStatus = table.checkStatus(obj.config.id); //获取选中行状态
+            switch(obj.event){
+                case 'getCheckData':
+                    var data = checkStatus.data;  //获取选中行数据
+                    layer.alert(JSON.stringify(data));
+                    break;
+            };
+        });
+
+        //监听锁定操作
+        form.on('checkbox(lockDemo)', function(obj){
+
+            console.log(obj)
+
+            $.post('/admin/user/state', {'id':this.value,'del':obj.elem.checked?2:1},function(res){
+                console.log(res)
+                if(res.code == 1){
+                    layer.msg(res.msg,{icon: 1})
+                }else{
+                    layer.alert(res.msg,{icon: 5})
+                }
+
+            },'json');
+
+            // layer.tips(this.value + ' ' + this.name + '：'+ obj.elem.checked, obj.othis);
+        });
+
+        //搜索
+        var $ = layui.$, active = {
+            reload: function(){
+                var start = $('#start');
+                var end = $('#end');
+                var username = $('#username');
+                //执行重载
+                table.reload('testReload', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        start:start.val(),
+                        end:end.val(),
+                        username:username.val()
+                    }
+                });
+            }
+        };
+
+        $('.demoTable .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+        //监听工具条
+        table.on('tool(test)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'detail'){
+                xadmin.open('查看用户信息','/admin/user/detail?id='+data.id,800,600)
+                // layer.msg('ID：'+ data.id + ' 的查看操作');
+            } else if(obj.event === 'del'){
+                layer.confirm('真的删除行么', function(index){
+                    console.log(data.id)
+
+                    $.post('/admin/user/del', {'id':data},function(res){
+                        console.log(res)
+                        if(res.code == 1){
+                            layer.msg(res.msg,{icon: 1})
+                        }else{
+                            layer.alert(res.msg,{icon: 5})
+                        }
+
+                    },'json');
+
+                    obj.del();
+                    layer.close(index);
+                });
+            } else if(obj.event === 'edit'){
+                // layer.alert(data.id)
+                xadmin.open('编辑用户','/admin/user/edit?id='+data.id,800,600)
+                // layer.alert('编辑行：<br>'+ JSON.stringify(data))
+            }
+        });
+
+
+        //监听排序事件
+        table.on('sort(test)', function(obj){ //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+            console.log(obj.field); //当前排序的字段名
+            console.log(obj.type); //当前排序类型：desc（降序）、asc（升序）、null（空对象，默认排序）
+            console.log(this); //当前排序的 th 对象
+
+            var start = $('#start');
+            var end = $('#end');
+            var username = $('#username');
+
+            //尽管我们的 table 自带排序功能，但并没有请求服务端。
+            //有些时候，你可能需要根据当前排序的字段，重新向服务端发送请求，从而实现服务端排序，如：
+            table.reload('testReload', {
+                initSort: obj //记录初始排序，如果不设的话，将无法标记表头的排序状态。
+                ,where: { //请求参数（注意：这里面的参数可任意定义，并非下面固定的格式）
+                    field: obj.field //排序字段
+                    ,order: obj.type, //排序方式
+                    start:start.val(),
+                    end:end.val(),
+                    username:username.val()
+                }
+            });
+
+            // layer.msg('服务端排序。order by '+ obj.field + ' ' + obj.type);
+        });
+
+    });
+
+
+    // 时间戳转换
+    function timestampToTime(timestamp) {
+        var date = new Date(timestamp * 1000);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+        var Y = date.getFullYear() + '-';
+        var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+        var D = date.getDate() + ' ';
+        var h = date.getHours() + ':';
+        var m = date.getMinutes() + ':';
+        var s = date.getSeconds();
+        return Y + M + D + h + m + s;
+    }
+
+</script>

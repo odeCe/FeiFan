@@ -1,0 +1,170 @@
+{include file='pubilc/head' /}
+
+<body>
+<div class="x-nav">
+            <span class="layui-breadcrumb">
+                <a href="">后台</a>
+                <a href="">服务管理</a>
+                <a>
+                    <cite>添加厂商</cite>
+                </a>
+            </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       onclick="location.reload()" title="刷新">
+        <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i>
+    </a>
+</div>
+<div class="layui-fluid">
+    <div class="layui-row">
+        <form class="layui-form">
+
+
+            <div class="layui-form-item">
+                <label for="firm_title" class="layui-form-label">
+                    <span class="x-red">*</span>厂商名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="firm_title" name="firm_title" lay-verify="required"autocomplete="off"
+                           class="layui-input" value="{$firm_title|default=''}">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label for="firm_account" class="layui-form-label">
+                    <span class="x-red"></span>账号</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="firm_account" name="firm_account" lay-verify="required"autocomplete="off"
+                           class="layui-input" value="{$firm_account|default=''}">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label for="firm_pass" class="layui-form-label">
+                    <span class="x-red"></span>密码</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="firm_pass" name="firm_pass" lay-verify="required"autocomplete="off"
+                           class="layui-input" value="{$firm_pass|default=''}">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label for="firm_email" class="layui-form-label">
+                    <span class="x-red"></span>邮箱</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="firm_email" name="firm_email" lay-verify="required"autocomplete="off"
+                           class="layui-input" value="{$firm_email|default=''}">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label for="firm_username" class="layui-form-label">
+                    <span class="x-red"></span>联系人</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="firm_username" name="firm_username" lay-verify="required"autocomplete="off"
+                           class="layui-input" value="{$firm_username|default=''}">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label for="firm_mobile" class="layui-form-label">
+                    <span class="x-red"></span>手机号</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="firm_mobile" name="firm_mobile" lay-verify="required"autocomplete="off"
+                           class="layui-input" value="{$firm_mobile|default=''}">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label for="firm_mark" class="layui-form-label">
+                    <span class="x-red"></span>备注</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="firm_mark" name="firm_mark" lay-verify="required"autocomplete="off"
+                           class="layui-input" value="{$firm_mark|default=''}">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label for="firm_mobile" class="layui-form-label">
+                    <span class="x-red">*</span>状态</label>
+                <div class="layui-input-inline">
+                    <input type="radio" name="firm_statu" value="1" title="启用" class="layui-input" >
+                    <input type="radio" name="firm_statu" value="2" title="禁用" class="layui-input" checked>
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label for="firm_code" class="layui-form-label">
+                    <span class="x-red">*</span>代码</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="firm_code" name="firm_code" lay-verify="required"autocomplete="off"
+                           class="layui-input" value="{$firm_code|default=''}">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label  class="layui-form-label"></label>
+                <button class="layui-btn" lay-filter="add" lay-submit="">增加</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+
+    layui.use(['form', 'layer', 'jquery'],
+        function () {
+            $ = layui.jquery;
+            var form = layui.form,
+                layer = layui.layer;
+
+            //监听提交
+            form.on('submit(add)',
+                function (data) {
+                    console.log(data);
+                    //发异步，把数据提交给php
+                    $.post('/admin/Serve/firmadd', data.field, function (res) {
+                        if (res.code == 1) {
+                            layer.alert("成功", {
+                                    icon: 6
+                                },
+                                function () {
+                                    //关闭当前frame
+                                    xadmin.close();
+
+                                    // 可以对父窗口进行刷新
+                                    xadmin.father_reload();
+                                });
+                        } else {
+                            layer.alert(res.msg, {icon: 5})
+                        }
+                    })
+
+                    return false;
+                });
+
+        });</script>

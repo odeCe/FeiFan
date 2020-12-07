@@ -1,0 +1,143 @@
+{include file='pubilc/head' /}
+
+<body>
+<div class="x-nav">
+            <span class="layui-breadcrumb">
+                <a href="">后台</a>
+                <a href="">公司管理</a>
+                <a>
+                    <cite>公司修改</cite>
+                </a>
+            </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       onclick="location.reload()" title="刷新">
+        <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i>
+    </a>
+</div>
+<div class="layui-fluid">
+    <div class="layui-row">
+        <form class="layui-form">
+
+
+            <div class="layui-form-item">
+                <label for="tissue" class="layui-form-label">
+                    <span class="x-red">*</span>组织</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="tissue" name="tissue" lay-verify="required" autocomplete="off"
+                           class="layui-input" value="{$tissue|default=''}">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    <span class="x-red"></span>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="principal" class="layui-form-label">
+                    <span class="x-red">*</span>负责人</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="principal" name="principal" lay-verify="required"
+                           autocomplete="off" class="layui-input"  value="{$principal|default=''}">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="mobile" class="layui-form-label">
+                    <span class="x-red">*</span>手机号</label>
+                <div class="layui-input-inline">
+                    <input type="number" id="mobile" name="mobile" lay-verify="required"
+                           autocomplete="off" class="layui-input"  value="{$mobile|default=''}">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="L_email" class="layui-form-label">
+                    <span class="x-red"></span>邮箱</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="L_email" name="email"  autocomplete="off"
+                           class="layui-input"  value="{$email|default=''}">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    <span class="x-red"></span>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="site" class="layui-form-label">
+                    <span class="x-red"></span>地址</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="site" name="site"  autocomplete="off"
+                           class="layui-input"  value="{$site|default=''}">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    <span class="x-red"></span>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="describe" class="layui-form-label">
+                    <span class="x-red"></span>描述</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="describe" name="describe"  autocomplete="off"
+                           class="layui-input" value="{$describe|default=''}">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    <span class="x-red"></span>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="" class="layui-form-label">
+                    <span class="x-red">*</span>管理权限</label>
+                <div class="layui-input-inline">
+                    <select name="role_id" lay-verify="required" lay-search="">
+                        <option value="">直接选择或搜索选择</option>
+                        {volist name="role" id="vo"}
+                        <option value="{$vo.id}" {$role_id== $vo.id?
+                        'selected':''}>{$vo.name}</option>
+                        {/volist}
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label  class="layui-form-label"></label>
+                <input type="hidden" name="id" value="{$id|default='0'}">
+                <button class="layui-btn" lay-filter="add" lay-submit="">更新</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+
+    layui.use(['form', 'layer', 'jquery'],
+        function () {
+            $ = layui.jquery;
+            var form = layui.form,
+                layer = layui.layer;
+
+            //监听提交
+            form.on('submit(add)',
+                function (data) {
+                    console.log(data);
+                    //发异步，把数据提交给php
+                    $.post('/admin/Company/edit', data.field, function (res) {
+                        if (res.code == 1) {
+                            layer.alert("成功", {
+                                    icon: 6
+                                },
+                                function () {
+                                    //关闭当前frame
+                                    xadmin.close();
+
+                                    // 可以对父窗口进行刷新
+                                    xadmin.father_reload();
+                                });
+                        } else {
+                            layer.alert(res.msg, {icon: 5})
+                        }
+                    })
+
+                    return false;
+                });
+
+        });</script>

@@ -1,0 +1,182 @@
+{include file='pubilc/head' /}
+
+<body>
+<div class="x-nav">
+            <span class="layui-breadcrumb">
+                <a href="">后台</a>
+                <a href="">服务管理</a>
+                <a>
+                    <cite>厂商信息</cite>
+                </a>
+            </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       onclick="location.reload()" title="刷新">
+        <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i>
+    </a>
+</div>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <!--                <div class="layui-card-body demoTable">-->
+                <!--                    <div class="layui-inline layui-show-xs-block">-->
+                <!--                        <input type="text" name="username" placeholder="服务名|代号|服务地址|标示" autocomplete="off"-->
+                <!--                               class="layui-input" id="username">-->
+                <!--                    </div>-->
+                <!--                    <div class="layui-inline layui-show-xs-block">-->
+                <!--                        <button class="layui-btn" data-type="reload">-->
+                <!--                            <i class="layui-icon">&#xe615;</i></button>-->
+                <!--                    </div>-->
+                <!--                </div>-->
+                <div class="layui-card-body">
+                    <table class="layui-hide" id="test" lay-filter="test"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <button class="layui-btn" onclick="xadmin.open('添加厂商','/admin/Serve/firmadd',800,600)"><i class="layui-icon"></i>添加厂商
+        </button>
+    </div>
+</script>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script type="text/html" id="checkboxTpl1">
+    <input type="checkbox" name="firm_statu"  value="{{d.id}}" title="启用" lay-filter="lockDemo" {{ d.firm_statu == 1 ? 'checked' : '' }}>
+</script>
+
+
+<script>
+    layui.use(['table', 'form', 'laydate'], function () {
+        var table = layui.table
+            , form = layui.form
+            , laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#start' //指定元素
+        });
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#end' //指定元素
+        });
+
+        table.render({
+            elem: '#test'
+            , url: '/admin/Serve/firm'
+            , toolbar: '#toolbarDemo'
+            , method: 'post'
+            , cols: [[
+                {type: 'numbers', title: '序号'}
+                , {field: 'firm_title', width:'200', title: '厂商名称'}
+                , {field: 'firm_priority', width:'200', title: '优先级(仅数字,可编辑)',edit: 'text'}
+                , {field: 'firm_account', width:'200', title: '账号'}
+                , {field: 'firm_pass', width:'200', title: '密码'}
+                , {field: 'firm_email',width:'200',  title: '邮箱'}
+                , {field: 'firm_username',width:'200',  title: '联系人'}
+                , {field: 'firm_mobile',width:'200',  title: '手机'}
+                , {field: 'firm_mark', width:'200', title: '备注'}
+                , {field: 'firm_statu',width:'200',  title: '启用', toolbar: '#checkboxTpl1'}
+                , {field: 'firm_code',width:'200',  title: '代码'}
+                , {fixed: '',width:'200', title: '操作',  toolbar: '#barDemo'}
+            ]]
+            , id: 'testReload'
+            , page: true
+            , size: 'lg'
+            , limits: [10, 20, 30, 40, 50, 100, 1000]
+        });
+
+
+        //搜索
+        var $ = layui.$, active = {
+            reload: function(){
+                var start = $('#start');
+                var end = $('#end');
+                var username = $('#username');
+                //执行重载
+                table.reload('testReload', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        start:start.val(),
+                        end:end.val(),
+                        username:username.val()
+                    }
+                });
+            }
+        };
+
+        $('.demoTable .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+        //监听工具条
+        table.on('tool(test)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'edit') {
+                xadmin.open('编辑用户', '/admin/Serve/firmedit?id=' + data.id, 800, 600)
+            }
+            if (obj.event === 'del') {
+
+                layer.confirm('真的删除行么', function(index){
+                    console.log(data.id)
+
+                    $.post('/admin/Serve/firmdel', {'id':data.id},function(res){
+                        if(res.code == 1){
+                            layer.msg(res.msg,{icon: 1})
+                        }else{
+                            layer.alert(res.msg,{icon: 5})
+                        }
+
+                    },'json');
+
+                    obj.del();
+                    layer.close(index);
+                });
+            }
+        });
+
+//监听锁定操作
+        form.on('checkbox(lockDemo)', function (obj) {
+            $.post('/admin/Serve/firmstatu', {'id': this.value, 'state': obj.elem.checked ? 1 : 2}, function (res) {
+                if (res.code == 1) {
+                    layer.msg(res.msg, {icon: 1})
+                } else {
+                    layer.alert(res.msg, {icon: 5})
+                }
+            }, 'json');
+        });
+
+        //监听单元格编辑
+        table.on('edit(test)', function(obj){
+            console.log(obj)
+            var value = parseInt(obj.value) //得到修改后的值
+                ,data = obj.data //得到所在行所有键值
+                ,field = obj.field; //得到字段
+            // layer.msg('[ID: '+ data.id +'] ' + field + ' 字段更改为：'+ value);
+
+            $.post('/admin/Serve/priority', {'id': data.id, 'num': value}, function (res) {
+                if (res.code == 1) {
+                    layer.msg(res.msg, {icon: 1})
+                } else {
+                    layer.alert(res.msg, {icon: 5})
+                }
+            }, 'json');
+
+        });
+
+    });
+
+
+</script>

@@ -1,0 +1,197 @@
+{include file='pubilc/head' /}
+<body>
+<div class="x-nav">
+            <span class="layui-breadcrumb">
+                <a href="">后台</a>
+                <a href="">分析管理</a>
+                <a>
+                    <cite>消费水平分析</cite>
+                </a>
+            </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       onclick="location.reload()" title="刷新">
+        <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i>
+    </a>
+</div>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <div class="layui-form demoTable">
+                        {eq name="$userinfo['super']" value="1"}
+                        <div class="layui-inline layui-show-xs-block">
+                            <select name="username" id="username" lay-search="" class="layui-input" autocomplete="off">
+                                <option value="">客户选择</option>
+                                {volist name="admin" id="vo"}
+                                <option value="{$vo.id}">{$vo.username}</option>
+                                {/volist}
+                            </select>
+                        </div>
+                        {/eq}
+                        <div class="layui-inline layui-show-xs-block" style="width: 200px;">
+                            <select name="serve_id" id="serve_id" lay-search="" class="layui-input" autocomplete="off">
+                                <option value="">服务选择</option>
+                                {volist name="serve" id="vo"}
+                                <option value="{$vo.id}" }>{$vo.serve_name}</option>
+                                {/volist}
+                            </select>
+                        </div>
+
+                        <div class="layui-inline layui-show-xs-block">
+                            <div class="layui-input-inline">
+                                <select name="type" id="type" lay-search="" class="layui-input" autocomplete="off"
+                                        lay-filter="type">
+                                    <option value="30">查询方式: 月</option>
+                                    <option value="1">天</option>
+
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="layui-inline">
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" id="dateTime2" placeholder="年月范围" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="layui-inline layui-show-xs-block">
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" id="dateTime" placeholder="日期范围"
+                                       style="display: none;" autocomplete="off">
+                            </div>
+                        </div>
+
+
+                        <div class="layui-inline layui-show-xs-block">
+                            <button class="layui-btn" data-type="reload">
+                                <i class="layui-icon">&#xe615;</i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-card-body">
+                    <div id="main" style="width: 100%;height:400px;box-shadow: 1px 2px 5px #eaeaea;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script src="https://cdn.bootcss.com/echarts/4.2.1-rc1/echarts.min.js"></script>
+<script type="text/javascript">
+    var myChart = echarts.init(document.getElementById('main'));
+    // 显示标题，图例和空的坐标轴
+    myChart.setOption({
+        title: {
+            text: '客户用量'
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross',
+                label: {
+                    backgroundColor: '#6a79ff'
+                }
+            }
+        },
+        toolbox: {
+            feature: {
+                saveAsImage: {}
+            }
+        },
+        xAxis: {
+            data: [],
+        },
+
+        yAxis: {},
+        series: []
+    });
+
+
+    layui.use(['form', 'table', 'laydate', 'layer'], function () {
+        var layer = layui.layer
+            , form = layui.form
+            , table = layui.table
+            , laydate = layui.laydate;
+
+        var day3 = new Date();
+        day3.setTime(day3.getTime()); //+24*60*60*1000
+        var s3 = day3.getFullYear()+"-" + (day3.getMonth()+1) + "-" + day3.getDate();
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#dateTime' //指定元素
+            ,max: s3
+            , range: "至"
+
+        });
+
+        laydate.render({
+            elem: '#dateTime2'
+            ,max: s3
+            , type: 'month'
+            , range: "至"
+        });
+
+        form.on('select(type)', function (data) {        //对应lay-filter
+            num = data.value;                                   //获取value值
+            if (num == 30) {
+                $('#dateTime2').show()
+                $('#dateTime').hide()
+            } else {
+                $('#dateTime').show()
+                $('#dateTime2').hide()
+            }
+
+        });
+
+
+        var $ = layui.$, active = {
+            reload: function () {
+                var dateTime = $('#dateTime').val();
+                var dateTime2 = $('#dateTime2').val();
+                var type = $('#type').val();
+                var serve_id = $('#serve_id').val();
+                var username = $('#username').val();
+
+                if (type == 30) {
+                    $url = ""
+                } else {
+                    $url = ""
+                }
+
+                myChart.showLoading();
+                $.post('/admin/Analysis/consumption', {dateTime, dateTime2, type, serve_id, username}, function (res) {
+                    myChart.hideLoading();
+                    if (res.code == 1) {
+                        myChart.setOption(
+                            {
+                                legend: {
+                                    orient: 'vertical',
+                                    right: 10,
+                                    top: 20,
+                                    bottom: 20,
+                                    data: res.data.legendData
+                                },
+                                xAxis: {
+                                    data: res.data.datetime
+                                },
+                                series: res.data.dataArr
+                            }
+                        );
+                    } else {
+                        layer.alert(res.msg, {icon: 5})
+                    }
+                })
+
+            }
+        };
+
+        $('.demoTable .layui-btn').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+
+</script>

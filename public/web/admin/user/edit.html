@@ -1,0 +1,159 @@
+{include file='pubilc/head' /}
+
+<body>
+<div class="layui-fluid">
+    <div class="layui-row">
+        <form class="layui-form" lay-filter="formTest">
+
+            <div class="layui-form-item">
+                <label for="account" class="layui-form-label">
+                    <span class="x-red">*</span>账号</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="account" name="account" required="" lay-verify="account" autocomplete="off" class="layui-input" disabled>
+                    <input type="hidden" id="id" name="id" required="" lay-verify="id" autocomplete="off" class="layui-input" disabled>
+                </div>
+
+                <div class="layui-form-mid layui-word-aux">
+                    <span class="x-red">*</span>不可修改
+
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label for="username" class="layui-form-label">
+                    <span class="x-red">*</span>用户名</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="username" name="username" required=""  autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+
+
+
+            <div class="layui-form-item">
+                <label for="email" class="layui-form-label">
+                    <span class="x-red">*</span>邮箱</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="email" name="email" required=""  autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label for="mobile" class="layui-form-label">
+                    <span class="x-red">*</span>手机号</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="mobile" name="mobile" required=""  autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label for="qq" class="layui-form-label">
+                    qq
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="qq" name="qq"   autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">状态</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="is_del" value="1" title="正常" class="layui-input">
+                    <input type="radio" name="is_del" value="2" title="已拉黑" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="addtime" class="layui-form-label">
+                    <span class="x-red">*</span>密码
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="pass" name="pass"   autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    <span class="x-red">*</span>不修改,请留空
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label for="L_repass" class="layui-form-label"></label>
+                <button class="layui-btn" lay-filter="edit" lay-submit="">修改</button>
+            </div>
+
+
+        </form>
+    </div>
+</div>
+<script>
+    layui.use(['form', 'layer','jquery'],
+    function() {
+        $ = layui.jquery;
+        var form = layui.form,
+            layer = layui.layer;
+
+        var id = getQueryString('id');
+
+        $.post('/admin/user/detail', {'id':id},function(res){
+            console.log(res)
+            if(res.code == 1){
+
+                form.val("formTest", {
+                    "id":res.data.id
+                    ,"account":res.data.account
+                    ,"username":res.data.username
+                    ,"qq":res.data.qq
+                    ,"email":res.data.email
+                    ,"mobile":res.data.mobile
+                    ,"is_del":String(res.data.is_del)
+
+                })
+            }
+
+        },'json');
+
+
+        //表单提交
+        form.on('submit(edit)', function(data){
+            console.log(data.elem) //被执行事件的元素DOM对象，一般为button对象
+            console.log(data.form) //被执行提交的form对象，一般在存在form标签时才会返回
+            console.log(data.field) //当前容器的全部表单字段，名值对形式：{name: value}
+
+            $.post('/admin/user/edit', data.field,function(res){
+                console.log(res)
+                if(res.code == 1){
+                    layer.msg(res.msg,{icon: 1})
+                }else{
+                    layer.alert(res.msg,{icon: 5})
+                }
+
+            },'json');
+
+
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+
+    });
+
+
+// 获取GIT参数
+function getQueryString(name) {
+    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+    var r = window.location.search.substr(1).match(reg);
+    if (r != null) return unescape(r[2]); return null;
+}
+</script>
+</body>
+
+</html>

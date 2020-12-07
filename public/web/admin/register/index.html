@@ -1,0 +1,88 @@
+{include file='pubilc/head' /}
+
+<link rel="stylesheet" href="__STATIC__/xadmin//css/login.css">
+<body class="login-bg">
+<style>
+    input {
+        height: 38px !important;
+    }
+    .layadmin-link{
+        color: #029789!important;
+        float: right;
+    }
+</style>
+<div class="login layui-anim layui-anim-up">
+    <div class="message">{$website.title}</div>
+    <div id="darkbannerwrap"></div>
+
+    <form method="post" class="layui-form">
+
+        <div class="layui-form-item">
+            <input type="text" name="account" id="LAY-user-login-account" lay-verify="required" placeholder="账号 6-16位"
+                   class="layui-input">
+        </div>
+        <div class="layui-form-item">
+            <input type="text" name="username" id="LAY-user-login-username" lay-verify="required" placeholder="用户名 6-16位"
+                   class="layui-input">
+        </div>
+        <div class="layui-form-item">
+            <input type="password" name="password" id="LAY-user-login-password" lay-verify="required" placeholder="设置密码"
+                   class="layui-input">
+        </div>
+        <div class="layui-form-item">
+            <input type="password" name="pass" id="LAY-user-login-pass" lay-verify="required" placeholder="确认密码"
+                   class="layui-input">
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-row">
+                <div class="layui-col-xs7">
+                    <input type="text" name="vercode" id="vercode" lay-verify="required" placeholder="图形验证码"
+                           class="layui-input">
+                </div>
+                <div class="layui-col-xs5">
+                    <div style="margin-left: 10px;">
+                        <img src="/admin/Register/verify"
+                             onclick='this.src = "/admin/Register/verify?t=" + (new Date).getTime()'
+                             class="layadmin-user-login-codeimg" id="LAY-user-get-vercode" style="width: 100%">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <input type="hidden" name="__token__" id="token" value="{$token}">
+            <input value="注册" lay-submit lay-filter="login" style="width:100%;" type="submit">
+        </div>
+
+        <div class="layui-form-item">
+            <a href="/admin/login/index" class="layadmin-link">登录帐号</a>
+        </div>
+    </form>
+</div>
+<script src="http://feifan.jwcode.cn/static/xadmin/lib/layui/lay/modules/jquery.js"></script>
+<script>
+
+
+    layui.use('form', function () {
+        var form = layui.form;
+        //监听提交
+        form.on('submit(login)', function (data) {
+
+            $.post('/admin/Register/index', data.field, function (res) {
+                if (res.code == 1) {
+                    layer.msg('注册成功,去登陆', {
+                        icon: 6
+                    }, function () {
+                        location.href = '/admin/login/index'
+                    })
+                } else {
+                    $('#LAY-user-get-vercode').attr("src", "/admin/Register/verify?t=" + (new Date).getTime());
+                    layer.msg(res.msg, {icon: 5});
+                    $('#token').val(res.data)
+                }
+            })
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

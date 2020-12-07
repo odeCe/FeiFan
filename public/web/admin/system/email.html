@@ -1,0 +1,100 @@
+{include file='pubilc/head' /}
+
+<body>
+<div class="layui-fluid">
+    <div class="layui-row">
+        <form class="layui-form" lay-filter="formTest">
+
+            <div class="layui-form-item">
+                <label for="launch" class="layui-form-label">
+                    <span class="x-red">*</span>发件方名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="launch" name="launch" required="" autocomplete="off" class="layui-input" value="{$launch|default=''}">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="site" class="layui-form-label">
+                    <span class="x-red">*</span>测试收件地址</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="site" name="site" required="" autocomplete="off" class="layui-input" value="{$site|default=''}">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label for="host" class="layui-form-label">
+                    <span class="x-red">*</span>服务器地址</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="host" name="host" required=""  autocomplete="off" class="layui-input" value="{$host|default=''}">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label for="account" class="layui-form-label">
+                    <span class="x-red">*</span>邮箱账号</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="account" name="account" required=""  autocomplete="off" class="layui-input" value="{$account|default=''}">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label for="pass" class="layui-form-label">
+                    <span class="x-red">*</span>邮箱密码</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="pass" name="pass" required=""  autocomplete="off" class="layui-input" value="{$pass|default=''}">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label for="L_repass" class="layui-form-label"></label>
+                <button class="layui-btn" lay-filter="edit" lay-submit="">修改</button>
+                <p class="layui-btn" onclick="xadmin.open('测试邮件','/admin/System/testEmail')">发送测试邮件</p>
+            </div>
+
+
+        </form>
+    </div>
+</div>
+<script>
+    layui.use(['form', 'layer','jquery'],
+        function() {
+            $ = layui.jquery;
+            var form = layui.form,
+                layer = layui.layer;
+            //表单提交
+            form.on('submit(edit)', function(data){
+                $.post('/admin/System/email', data.field,function(res){
+                    console.log(res)
+                    if(res.code == 1){
+                        layer.msg(res.msg,{icon: 1})
+                    }else{
+                        layer.alert(res.msg,{icon: 5})
+                    }
+
+                },'json');
+
+
+                return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+            });
+
+        });
+
+
+    // 获取GIT参数
+    function getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]); return null;
+    }
+</script>
+</body>
+
+</html>

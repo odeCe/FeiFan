@@ -1,0 +1,129 @@
+{include file='pubilc/head' /}
+
+<body>
+<div class="x-nav">
+            <span class="layui-breadcrumb">
+                <a href="">后台</a>
+                <a href="">API测试管理</a>
+                <a>
+                    <cite>批量测试任务</cite>
+                </a>
+            </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       onclick="location.reload()" title="刷新">
+        <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i>
+    </a>
+</div>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <div class="layui-form demoTable">
+                        <div class="layui-inline layui-show-xs-block">
+                            <input type="text" name="task_name" placeholder="任务名" autocomplete="off"
+                                   class="layui-input" id="task_name">
+                        </div>
+
+                        <div class="layui-inline layui-show-xs-block">
+                            <button class="layui-btn" data-type="reload" id="reloadserve">
+                                <i class="layui-icon">&#xe615;</i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-card-body">
+                    <table class="layui-hide" id="test" lay-filter="test"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+
+<script type="text/html" id="checkboxTpl1">
+    {{# if(d.task_statu == 1){ }}
+    <span class="layui-badge layui-bg-green">待执行</span>
+    {{# }else if(d.task_statu == 2){ }}
+    <span class="layui-badge layui-bg-green">执行中</span>
+    {{# }else if(d.task_statu == 3){ }}
+    <span class="layui-badge layui-bg-green">结束</span>
+    {{# }else{ }}
+    <span class="layui-badge layui-bg-orange">未知 </span>
+    {{# } }}
+</script>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="look">查看</a>
+
+</script>
+
+
+<script>
+    layui.use(['table', 'form', 'laydate'], function () {
+        var table = layui.table
+            , form = layui.form
+            , laydate = layui.laydate;
+
+        table.render({
+            elem: '#test'
+            , url: '/admin/Apitest/testall?id={$tid}'
+            , toolbar: '#toolbarDemo'
+            , method: 'post'
+            , cols: [[
+                {type: 'numbers', title: '序号'}
+                , {field: 'task_name',width: 300,  title: '任务名'}
+                , {field: 'task_addtime', width: 150, title: '添加时间'}
+                , {field: 'task_statu', width: 100, title: '状态',toolbar: '#checkboxTpl1'}
+                , {field: 'task_num', width: 120, title: '总数'}
+                , {field: 'task_ok', width: 120, title: '有效'}
+                , {field: 'task_success', width: 120, title: '成功'}
+                , {fixed: '', title: '操作',  toolbar: '#barDemo'}
+            ]]
+            , id: 'testReload'
+            , page: true
+            , size: 'lg'
+            , limits: [10, 20, 30, 40, 50, 100, 1000]
+        });
+
+
+        //搜索
+        var $ = layui.$, active = {
+            reload: function(){
+                var test_serve_id = $('#test_serve_id');
+                var test_kind_id = $('#test_kind_id');
+                var task_name = $('#task_name');
+                //执行重载
+                table.reload('testReload', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        task_name:task_name.val(),
+                        test_serve_id:test_serve_id.val(),
+                        test_kind_id:test_kind_id.val()
+                    }
+                });
+            }
+        };
+
+        $('.demoTable .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+        //监听工具条
+        table.on('tool(test)', function (obj) {
+            var data = obj.data;
+
+            if (obj.event === 'look') {
+                xadmin.open('任务详情', '/admin/Apitest/testallinfo?id=' + data.test_id + '&tkid=' + data.task_id, 600, 400)
+            }
+
+
+        });
+
+    });
+
+
+</script>
+

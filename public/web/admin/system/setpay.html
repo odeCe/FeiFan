@@ -1,0 +1,112 @@
+{include file='pubilc/head' /}
+<style>
+    .layui-upload-img{
+        width: 200px;
+    }
+</style>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row">
+        <form class="layui-form" lay-filter="formTest">
+
+            <div class="layui-row">
+                <div class="layui-col-md6">
+                    <div class="layui-form-item">
+                        <label for="wxpay" class="layui-form-label">
+                            <span class="x-red">*</span>微信支付二维码</label>
+                        <div class="layui-input-inline">
+                            <button type="button" class="layui-btn" id="test1">上传图片</button>
+                            <div id="demo1">
+                                <img src="{$wxpay}"  class="layui-upload-img">
+                            </div>
+                            <input type="hidden" name="wxpay" id="wxpay" value="{$wxpay}">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md6">
+                    <div class="layui-form-item">
+                        <label for="shrinkage" class="layui-form-label">
+                            <span class="x-red">*</span>支付宝支付二维码</label>
+                        <div class="layui-input-inline">
+                            <button type="button" class="layui-btn" id="test2">上传图片</button>
+                            <div id="demo2">
+                                <img src="{$alipay}"  class="layui-upload-img">
+                            </div>
+                            <input type="hidden" name="alipay" id="alipay" value="{$alipay}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label for="L_repass" class="layui-form-label"></label>
+                <button class="layui-btn" lay-filter="edit" lay-submit="">修改</button>
+            </div>
+
+
+        </form>
+    </div>
+</div>
+<script>
+    layui.use(['form', 'layer','jquery','upload'],
+        function() {
+            $ = layui.jquery;
+            var form = layui.form,
+                upload = layui.upload,
+                layer = layui.layer;
+
+
+
+            upload.render({
+                elem: '#test1'
+                ,url: '/admin/Article/image'
+                ,multiple: true
+                ,done: function(res){
+                    if(res.code === 0){
+                        $('#demo1').html('<img src="'+ res.data.src +'"   alt="'+ res.data.name +'" class="layui-upload-img">')
+                        $('#wxpay').val(res.data.src)
+                        layer.msg(res.msg)
+                    }else{
+                        layer.msg(res.msg)
+                    }
+                }
+            });
+
+
+            upload.render({
+                elem: '#test2'
+                ,url: '/admin/Article/image'
+                ,multiple: true
+                ,done: function(res){
+                    if(res.code === 0){
+                        $('#demo2').html('<img src="'+ res.data.src +'"   alt="'+ res.data.name +'" class="layui-upload-img">')
+                        $('#alipay').val(res.data.src)
+                        layer.msg(res.msg)
+                    }else{
+                        layer.msg(res.msg)
+                    }
+                }
+            });
+
+
+
+            //表单提交
+            form.on('submit(edit)', function(data){
+                $.post('/admin/System/setpay', data.field,function(res){
+                    console.log(res)
+                    if(res.code == 1){
+                        layer.msg(res.msg,{icon: 1})
+                    }else{
+                        layer.alert(res.msg,{icon: 5})
+                    }
+
+                },'json');
+
+
+                return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+            });
+
+        });
+</script>
+</body>
+
+</html>

@@ -1,0 +1,244 @@
+{include file='pubilc/head' /}
+
+<body>
+<div class="x-nav">
+            <span class="layui-breadcrumb">
+                <a href="">后台</a>
+                <a href="">分析管理</a>
+                <a>
+                    <cite>日志分析</cite>
+                </a>
+            </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       onclick="location.reload()" title="刷新">
+        <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i>
+    </a>
+</div>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header" style="height: 100px;">
+                    <div class="layui-form demoTable">
+                        <div class="layui-inline layui-show-xs-block">
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" id="dateTime" placeholder="日期范围" autocomplete="off">
+                            </div>
+                        </div>
+                        {eq name="$userinfo['super']" value="1"}
+                        <div class="layui-inline layui-show-xs-block" style="width: 200px;">
+                            <select name="user_id" id="user_id" lay-verify="required" lay-search="" class="layui-input"
+                                    autocomplete="off" lay-filter="serve">
+                                <option value="">客户选择</option>
+                                {volist name="admin" id="vo"}
+                                <option value="{$vo.id}">{$vo.username}</option>
+                                {/volist}
+                            </select>
+                        </div>
+                        {/eq}
+                        <div class="layui-inline layui-show-xs-block" style="width: 200px;">
+                            <select name="serve_id" id="serve_id" lay-verify="required" lay-search=""
+                                    class="layui-input"
+                                    autocomplete="off" lay-filter="serve">
+                                <option value="">服务选择</option>
+                                {volist name="serve" id="vo"}
+                                <option value="{$vo.id}" }>{$vo.serve_name}</option>
+                                {/volist}
+                            </select>
+                        </div>
+
+                        <div class="layui-inline layui-show-xs-block">
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" id="username" placeholder="姓名" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="layui-inline layui-show-xs-block">
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" id="idcard" placeholder="身份证" autocomplete="off">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="layui-inline layui-show-xs-block">
+                            <div class="layui-input-inline">
+                                <input type="number" class="layui-input" id="gt" placeholder="耗时大于" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="layui-inline layui-show-xs-block">
+                            <div class="layui-input-inline">
+                                <input type="number" class="layui-input" id="lt" placeholder="耗时小于" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="layui-inline layui-show-xs-block">
+                            <button class="layui-btn" data-type="reload">
+                                <i class="layui-icon">&#xe615;</i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-card-body">
+                    <table class="layui-hide" id="test" lay-filter="test"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script type="text/html" id="checkboxTpl1">
+    {{# if(d.log_resp.guid){ }}
+    <span class="layui-badge layui-bg-blue">{{d.log_resp.guid}}}</span>
+    {{# }else{ }}
+    无
+    {{# } }}
+</script>
+
+<script type="text/html" id="checkboxTpl2">
+
+    {{#     if( d.log_service_name && d.log_service_name == 'IdNamePhoneMapV1'){              }}
+    {{#     var dd =  d.log_qeru.param                     }}
+
+    {{#     for(var i = 0; i < dd.length; i++) {                         }}
+    {{#     console.log(dd[i])                                              }}
+    <span>身份证号: {{ isdata(dd[i].idCard) }}</span>
+    <span>名字: {{ isdata(dd[i].name) }}</span>
+    {{# } }}
+
+    {{# }else if(d.log_service_name && d.log_service_name != 'SpecialBigDataGetStatus'){  }}
+    {{#     var dd =  d.log_qeru ;    console.log(dd)                  }}
+    <span>身份证号: {{ isdata(dd.idCard) }}</span>
+    <span>名字: {{ isdata(dd.name) }}</span>
+    {{# }else{ }}
+    无
+    {{# } }}
+
+
+</script>
+
+
+<script>
+    layui.use(['table', 'form', 'laydate'], function () {
+        var table = layui.table
+            , form = layui.form
+            , laydate = layui.laydate;
+
+        var day3 = new Date();
+        day3.setTime(day3.getTime()); //+24*60*60*1000
+        var s3 = day3.getFullYear()+"-" + (day3.getMonth()+1) + "-" + day3.getDate();
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#dateTime' //指定元素
+            ,max: s3
+            , type: 'datetime'
+            , range: "至"
+
+        });
+
+        table.render({
+            elem: '#test'
+            , url: '/admin/Analysis/log'
+            , toolbar: '#toolbarDemo'
+            , method: 'post'
+            , cols: [[
+                {field: 'username', title: '用户名'}
+                , {field: 'log_guid', title: 'guid'}
+                , {field: 'log_addtime', title: '请求时间'}
+                , {field: 'log_qeru', title: '请求参数', toolbar: '#checkboxTpl2'}
+                , {field: 'log_consuming', title: '耗时(ms)'}
+                , {field: 'log_code', title: '返回状态(1000成功  其他失败)'}
+                , {field: 'log_ip', title: 'IP地址'}
+            ]]
+            , id: 'testReload'
+            , page: true
+            , size: 'lg'
+            , limits: [10, 20, 30, 40, 50, 100, 1000]
+        });
+
+        //头工具栏事件
+        table.on('toolbar(test)', function (obj) {
+            var checkStatus = table.checkStatus(obj.config.id); //获取选中行状态
+            switch (obj.event) {
+                case 'getCheckData':
+                    var data = checkStatus.data;  //获取选中行数据
+                    layer.alert(JSON.stringify(data));
+                    break;
+            }
+            ;
+        });
+
+        //监听锁定操作
+        form.on('checkbox(lockDemo)', function (obj) {
+
+            console.log(obj)
+
+            $.post('/admin/admin_user/state', {'id': this.value, 'del': obj.elem.checked ? 1 : 2}, function (res) {
+                console.log(res)
+                if (res.code == 1) {
+                    layer.msg(res.msg, {icon: 1})
+                } else {
+                    layer.alert(res.msg, {icon: 5})
+                }
+
+            }, 'json');
+
+            // layer.tips(this.value + ' ' + this.name + '：'+ obj.elem.checked, obj.othis);
+        });
+
+        //搜索
+        var $ = layui.$, active = {
+            reload: function () {
+                var dateTime = $('#dateTime').val()
+                var user_id = $('#user_id').val();
+                var serve_id = $('#serve_id').val();
+                var username = $('#username').val();
+                var idcard = $('#idcard').val();
+                var gt = $('#gt').val();
+                var lt = $('#lt').val();
+                //执行重载
+                table.reload('testReload', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    , where: {
+                        dateTime,
+                        user_id,
+                        serve_id,
+                        username,
+                        idcard,
+                        gt,
+                        lt
+                    }
+                });
+            }
+        };
+
+        $('.demoTable .layui-btn').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+
+    });
+
+    function isdata(data){
+        if(data){
+            return data
+        }else{
+            return ""
+        }
+    }
+
+    function idcard(data) {
+        return data.replace(/^(.{3})(?:\d+)(.{4})$/, "\$1****\$2")
+    }
+
+    function namecard(data = false) {
+
+        if (data) return data.charAt(0) + "**"
+        return '***'
+    }
+
+
+</script>
