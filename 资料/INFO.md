@@ -24,8 +24,12 @@
     上传基本是每天晚上几回
     sql 是 不定时
     
-#### 定时任务
-    php /www/wwwroot/FeiFan/public/index.php /task/Index/runs
+#### 定时任务 
+
+    #批量任务  1分钟一次
+    php /home/feifan/public/index.php /task/Index/runs
+    #部署更新 1分钟一次
+    cd /home/feifan && git reset --hard && git clean -f && git pull  2>&1 
     
     
     
