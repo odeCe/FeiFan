@@ -692,7 +692,7 @@ class Apitest extends AdminBasic
                 case 3:
                     if ($data['data_status'] == 1) {
                         $arr = json_decode($data['data_resp'], 1);
-                        $msg = (isset($arr['MESSAGE']) ? $arr['MESSAGE'] . "/" : "") . (isset($arr['detail']['resultInfo']['isp']) ? $arr['detail']['resultInfo']['isp'] : "");
+                        $msg = (isset($arr['detail']['resultMsg']) ? $arr['detail']['resultMsg'] . "/" : "") . (isset($arr['detail']['resultInfo']['isp']) ? $arr['detail']['resultInfo']['isp'] : "");
                         return $msg;
                     } else {
                         return "无结果";
